@@ -32,6 +32,12 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# test output and local data
+/test-results/
+/playwright-report/
+.pglite/
 
 # vercel
 .vercel
@@ -39,3 +45,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# agent tooling added by integrations
+/.agents/
+/.claude/
+skills-lock.json
+
+# secrets: keep the template, never the real thing (this must stay last)
+.env*
+!.env.example

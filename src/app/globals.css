@@ -1,26 +1,68 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f6f5fb;
+  --surface: #ffffff;
+  --ink: #1b1a2e;
+  --muted: #6b6a80;
+  --line: #e6e4f1;
+  --rail: #26215c;
+  --violet: #534ab7;
+  --violet-soft: #7f77dd;
+  --teal: #0f6e56;
+  --teal-soft: #1d9e75;
+  --coral: #d85a30;
+  --amber: #ba7517;
+  --danger: #c0392b;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html, body { background: var(--bg); color: var(--ink); font-family: var(--font-manrope), system-ui, sans-serif; }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Animations only add polish. Their starting frame must still be readable, so a paused, throttled or
+   skipped animation (background tab, reduced motion, screenshot) never leaves the page blank. */
+@keyframes rise { from { opacity: .7; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(29,158,117,.5); } 100% { box-shadow: 0 0 0 14px rgba(29,158,117,0); } }
+@keyframes grow { from { transform: scaleY(.25); } to { transform: scaleY(1); } }
+
+.rise { animation: rise .45s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+.card h3 { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 10px; }
+.tile { border-radius: 16px; padding: 14px; color: #fff; transition: transform .2s; }
+.tile:hover { transform: translateY(-4px) rotate(-.6deg); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 10px; padding: 8px 14px; font-size: 14px; font-weight: 600; border: 1px solid var(--line); background: var(--surface); cursor: pointer; transition: .15s; }
+.btn:hover { border-color: var(--violet-soft); }
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn-primary { background: var(--violet); color: #fff; border-color: var(--violet); }
+.btn-primary:hover { background: #453da0; }
+.btn-good { background: var(--teal-soft); color: #fff; border-color: var(--teal-soft); }
+.btn-bad { background: var(--coral); color: #fff; border-color: var(--coral); }
+.btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 8px; }
+.input { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 14px; background: #fff; }
+.input:focus { outline: 2px solid var(--violet-soft); outline-offset: 0; }
+.label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin: 10px 0 4px; }
+.badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 99px; }
+.b-pending { background: #fdf0d5; color: #7a4a05; }
+.b-approved, .b-good { background: #d9f3e8; color: #0b5a45; }
+.b-rejected, .b-bad { background: #fbe1da; color: #8e2f12; }
+.b-info { background: #e8e6fb; color: #3c3489; }
+.b-muted { background: #eeeef3; color: #55546a; }
+/* Wide tables scroll inside their card instead of pushing the whole page sideways on phones. */
+.card:has(table.t) { overflow-x: auto; }
+table.t { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.t th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+table.t td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+table.t tr:last-child td { border-bottom: 0; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 16px; overflow-x: auto; }
+.tabs a { padding: 8px 14px; font-size: 14px; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+.tabs a.on { color: var(--violet); border-color: var(--violet); }
+.err { color: var(--danger); font-size: 13px; margin-top: 8px; }
+.grid-auto { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }

@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gotechlio
 
-## Getting Started
+People, time, requests and payroll for one or many companies. Built with Next.js 15, TypeScript, Drizzle ORM and Postgres (Neon in production, an embedded Postgres locally).
 
-First, run the development server:
+## What's in it
+
+| Module | What it does |
+|---|---|
+| Home | Clock in and out with breaks, monthly stats, leave balances, activity, announcements |
+| People | Directory, org chart, profiles, documents, assets, onboarding checklists |
+| Time | Timesheets, weekly schedule, shifts, who's in today |
+| Requests | Leave, work from home, expenses, punch corrections, tickets, and an approvals inbox |
+| Payroll | Salary structures, monthly runs with tax and unpaid leave, payslips, final settlement |
+| Talent | Goals and review cycles, training courses, recruitment pipeline with hiring |
+| Engage | Announcements, kudos, polls |
+| Admin | Employees, leave types, holidays, departments, company settings |
+| Careers | Public job listings and applications |
+
+**Multiple companies.** One account can belong to several companies, with a different role in each, and switch between them from the sidebar. Every record is scoped to a company, and admins can add a new company. Isolation is covered by dedicated tests.
+
+## Run it locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+With no `DATABASE_URL`, the app uses an embedded Postgres stored in your home folder and seeds two demo companies on first run. Sign in as `employee@techlio.co`, `manager@techlio.co`, `hr@techlio.co` or `admin@techlio.co` with password `Techlio@123`. These demo accounts exist only locally; production never gets them.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tests
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm test           # 124 logic tests, in-memory Postgres
+npm run test:e2e   # 40+ browser tests in Edge: every module, every role, and a design audit at three screen widths
+npm run smoke      # loads every page as every role against a running dev server
+```
 
-## Learn More
+The design audit freezes all animations on their first frame and checks that nothing is invisible, nothing scrolls sideways, every control has a name, and the phone layout holds together.
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Create a Neon database and set `DATABASE_URL` (see `.env.example`) and a long random `AUTH_SECRET` in Vercel.
+2. Create the schema and your first company and admin once:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   DATABASE_URL=... ADMIN_EMAIL=you@company.com ADMIN_PASSWORD='at least 12 characters' COMPANY_NAME='Acme' npm run db:setup
+   ```
 
-## Deploy on Vercel
+3. `npm run deploy` builds, deploys to production and points the public address at the new deployment.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## How it's organised
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/server/` business logic, one file per area, each function takes the signed-in person and enforces its own permissions and company boundary
+- `src/db/` schema, migrations runner, demo seed
+- `src/app/` pages (server components) and a small JSON API: `/api/rpc` for actions, `/api/login`, `/api/switch`
+- `tests/` logic tests, `e2e/` browser tests, `scripts/` smoke, deploy and production setup
+- Sessions are a signed cookie that only identifies who you are; your role and company are re-read from the database on every request, so deactivation and role changes apply immediately.
